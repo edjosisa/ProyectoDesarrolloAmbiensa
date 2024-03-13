@@ -1,14 +1,15 @@
 import React, {useEffect,useState} from 'react'
 import axios from 'axios'
-
+import { Dropdown, DropdownButton } from 'react-bootstrap';
 import {Link} from 'react-router-dom'
-
+import { FaRegTrashAlt, FaEdit } from "react-icons/fa";
 const endpoint='http://localhost:8000/api'
 const MostrarClientes = () => {
-
+    const [allClientes, setAllClientes] = useState([]);
     const [clientes, setClientes] = useState([])
     const [searchTerm, setSearchTerm] = useState('');
-
+    
+    
     useEffect(()=>{
         getAllClientes()
     }, [])
@@ -17,6 +18,7 @@ const MostrarClientes = () => {
 
         try {
             const response = await axios.get(`${endpoint}/clientes`);
+            setAllClientes(response.data);
             setClientes(response.data);
           } catch (error) {
             console.error('Error fetching data:', error);
@@ -36,22 +38,22 @@ const MostrarClientes = () => {
     const handleSearch = (value) => {
         setSearchTerm(value);
         if (value === '') {
-          
-          getAllClientes();
+            setClientes(allClientes);
         } else {
-          const filteredClientes = clientes.filter((cliente) =>
-            cliente.descripcion.toLowerCase().includes(value.toLowerCase())
-          );
-          setClientes(filteredClientes);
+            const filteredClientes = allClientes.filter((cliente) =>
+                cliente.descripcion.toLowerCase().startsWith(value.toLowerCase())
+            );
+            setClientes(filteredClientes);
         }
-      }
+    }
 
   return (
     <div>
         <div className='d-grid gap-2'>
             <Link to="/create" className='btn btn-success btn-lg mt-2 mb-2 text-white'>Crear</Link>
         </div>
-        <input
+        <label>Medio</label>
+        <input className=''
         type="text"
         placeholder="Buscar por descripción..."
         value={searchTerm}
@@ -70,15 +72,22 @@ const MostrarClientes = () => {
             </thead>
             <tbody>
                 {clientes.map((cliente)=>(
+                    
                     <tr key={cliente.id}>
                         <td> {cliente.id}</td>
                         <td> {cliente.descripcion}</td>
-                        <td> {cliente.created_at}</td>
+                        <td> {new Date(cliente.created_at).toLocaleDateString()}</td>
+                        
                         <td> {cliente.usuario}</td>
                         <td> {cliente.estado}</td>
                         <td>
-                            <Link to={`/edit/${cliente.id}`} className='btn btn-warning' >Editar </Link>
-                            <button onClick={()=>eliminarClientes(cliente.id)} className='btn btn-danger'>Eliminar</button>
+                            <DropdownButton id="dropdown-basic-button" title="☰" style={{ padding: "0.5em" }}>
+                                
+                                    <Dropdown.Item as={Link} to={`/edit/${cliente.id}`}><FaEdit /></Dropdown.Item>
+                                    <Dropdown.Item onClick={() => eliminarClientes(cliente.id)}><FaRegTrashAlt /></Dropdown.Item>
+                            
+                                
+                            </DropdownButton>
                         </td>
                     </tr>
                 ))}

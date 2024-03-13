@@ -1,6 +1,7 @@
 import axios from "axios";
 import React, {useState, useEffect} from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import {Link} from 'react-router-dom'
 
 const endpoint = 'http://localhost:8000/api/cliente/'
 
@@ -24,13 +25,14 @@ const EditarCliente = () => {
     useEffect( () =>{
         const getProductById = async () => {
             const response = await axios.get(`${endpoint}${id}`)
-            setDescripcion(response.data.description)
-            setUsuario(response.data.price)
-            setEstado(response.data.stock)
+            console.log(response.data.descripcion)
+            setDescripcion(response.data.descripcion || '');
+            setUsuario(response.data.usuario || '');
+            setEstado(response.data.estado || '');
         }
         getProductById()
         
-    }, [] )
+    }, [id] )
 
     return (
         <div>
@@ -43,6 +45,7 @@ const EditarCliente = () => {
                     onChange={ (e)=> setDescripcion(e.target.value)}
                     type='text'
                     className='form-control'
+                    required
                 />
             </div>
             <div className='mb-3'>
@@ -52,6 +55,7 @@ const EditarCliente = () => {
                     onChange={ (e)=> setUsuario(e.target.value)}
                     type='text'
                     className='form-control'
+                    required
                 />
             </div>
             <div className='mb-3'>
@@ -61,9 +65,11 @@ const EditarCliente = () => {
                     onChange={ (e)=> setEstado(e.target.value)}
                     type='text'
                     className='form-control'
+                    required
                 />
             </div>
             <button type='submit' className='btn btn-primary'>Actualizar</button>
+            <Link  to='/' className='btn btn-danger'>Cancelar</Link>
         </form>
     </div>
     )
